@@ -2,6 +2,7 @@
 
 import os, yaml, sys, time, json
 from persistencia_pelicula_mysql import Persistencia_pelicula_mysql
+from persistencia_pelicula_postgresql import Persistencia_pelicula_postgresql
 from llistapelis import Llistapelis
 import logging
 
@@ -24,6 +25,14 @@ def get_persistencies(conf: dict) -> dict:
         credencials['database'] = conf["base de dades"]["database"]
         return {
             'pelicula': Persistencia_pelicula_mysql(credencials)
+        }
+    elif conf["base de dades"]["motor"].lower().strip() == "postgresql":
+        credencials['host'] = conf["base de dades"]["host"]
+        credencials['user'] = conf["base de dades"]["user"]
+        credencials['password'] = conf["base de dades"]["password"]
+        credencials['database'] = conf["base de dades"]["database"]
+        return {
+            'pelicula': Persistencia_pelicula_postgresql(credencials)
         }
     else:
         return {
@@ -84,7 +93,7 @@ def procesa_opcio(context):
 }.get(context["opcio"], lambda ctx : mostra_lent("opcio incorrecta!!!"))(context)
 
 def database_read(id:int):
-    logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
+    # logging.basicConfig(filename='pelicules.log', encoding='utf-8', level=logging.DEBUG)
     la_meva_configuracio = get_configuracio(RUTA_FITXER_CONFIGURACIO)
     persistencies = get_persistencies(la_meva_configuracio)
     films = Llistapelis(
